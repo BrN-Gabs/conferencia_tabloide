@@ -1,11 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --page-text: #16233b;
+  --bg-radial-a: rgba(14, 116, 144, 0.15);
+  --bg-radial-b: rgba(30, 64, 175, 0.16);
+  --bg-grad-a: #edf3fb;
+  --bg-grad-b: #f5f8fd;
+  --bg-grad-c: #eef2ff;
+}
+
+:root[data-theme="dark"] {
+  --page-text: #dbe8ff;
+  --bg-radial-a: rgba(20, 184, 166, 0.2);
+  --bg-radial-b: rgba(29, 78, 216, 0.28);
+  --bg-grad-a: #071225;
+  --bg-grad-b: #0a1730;
+  --bg-grad-c: #111d3a;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Manrope", "Segoe UI", Tahoma, sans-serif;
 }
 
 body {
-  background-color: #f4f6f9;
-  color: #1f2937;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 85% 15%, var(--bg-radial-a), transparent 35%),
+    radial-gradient(circle at 15% 85%, var(--bg-radial-b), transparent 36%),
+    linear-gradient(135deg, var(--bg-grad-a) 0%, var(--bg-grad-b) 45%, var(--bg-grad-c) 100%);
+  color: var(--page-text);
+  transition: background 0.35s ease, color 0.25s ease;
 }

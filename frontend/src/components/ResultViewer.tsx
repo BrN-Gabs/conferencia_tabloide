@@ -11,17 +11,14 @@ export default function ResultViewer({ result }: any) {
   if (!result || !result.produtos) return null;
 
   const detalhes = result.produtos;
-
   const iguais = detalhes.iguais || [];
   const divergentes = detalhes.divergentes || [];
   const faltandoNoPDF = detalhes.faltandoNoPDF || [];
   const faltandoNoExcel = detalhes.faltandoNoExcel || [];
 
-  // 🔢 Totais
   const totalExcel = iguais.length + divergentes.length + faltandoNoPDF.length;
   const totalPDF = iguais.length + divergentes.length + faltandoNoExcel.length;
 
-  // 🔥 NÃO remove mais duplicados
   const produtosLista: Produto[] = [
     ...iguais,
     ...divergentes,
@@ -31,13 +28,12 @@ export default function ResultViewer({ result }: any) {
 
   const totalUnico = produtosLista.length;
 
-  // 💰 Formatador BRL
   const formatMoney = (value?: number | string) => {
     if (!value && value !== 0) return "-";
 
     const number =
       typeof value === "string"
-        ? parseFloat(value.replace(",", "."))
+        ? parseFloat(value.replace(/\./g, "").replace(",", "."))
         : value;
 
     if (isNaN(number)) return "-";
@@ -48,118 +44,68 @@ export default function ResultViewer({ result }: any) {
     });
   };
 
-  return (
-    <div style={{ marginTop: 40 }}>
-      <h2>📊 Resultado da Conferência</h2>
+  const formatStatus = (status: string) =>
+    status.replaceAll("_", " ").replace(/\bNAO\b/g, "N\u00c3O");
 
-      {/* ================= TOTAIS ================= */}
-      <div style={summaryContainer}>
-        <SummaryCard title="Total Consolidado" value={totalUnico} />
+  const getStatusClass = (status: string) => {
+    if (status === "IGUAL") return "product-status status-ok";
+    if (status.includes("PDF")) return "product-status status-pdf";
+    if (status.includes("EXCEL")) return "product-status status-excel";
+    return "product-status status-divergent";
+  };
+
+  return (
+    <section className="result-viewer">
+      <h2 className="result-title">Resultado da conferência</h2>
+
+      <div className="summary-grid">
+        <SummaryCard title="Total consolidado" value={totalUnico} />
         <SummaryCard title="Total Excel" value={totalExcel} />
         <SummaryCard title="Total PDF" value={totalPDF} />
-        <SummaryCard title="OK" value={iguais.length} color="#16a34a" />
+        <SummaryCard title="OK" value={iguais.length} color="#15803d" />
         <SummaryCard title="Divergentes" value={divergentes.length} color="#dc2626" />
-        <SummaryCard title="Faltando no PDF" value={faltandoNoPDF.length} color="#f59e0b" />
-        <SummaryCard title="Faltando no Excel" value={faltandoNoExcel.length} color="#7c3aed" />
+        <SummaryCard title="Faltando no PDF" value={faltandoNoPDF.length} color="#d97706" />
+        <SummaryCard
+          title="Faltando no Excel"
+          value={faltandoNoExcel.length}
+          color="#0f8cae"
+        />
       </div>
 
-      {/* ================= LISTA COMPLETA ================= */}
-      <h3 style={{ marginTop: 30 }}>📋 Lista Completa</h3>
+      <h3 className="list-title">Lista completa</h3>
 
-        <div style={tableContainer}>
-        {produtosLista.map((item: Produto, index: number) => {
-
-            return (
-            <div key={index} style={rowStyle}>
-                <div style={rowHeader}>
-                <strong>{item.codigo}</strong>
-
-                <span
-                    style={{
-                    ...statusBadge,
-                    backgroundColor:
-                        item.status === "IGUAL"
-                        ? "#16a34a"
-                        : item.status.includes("PDF")
-                        ? "#f59e0b"
-                        : item.status.includes("EXCEL")
-                        ? "#7c3aed"
-                        : "#dc2626",
-                    }}
-                >
-                    {item.status}
-                </span>
-                </div>
-
-                <div style={valuesContainer}>
-                {item.excel && (
-                    <div>
-                    <strong>Excel:</strong>{" "}
-                    À vista: {formatMoney(item.excel.valorAvista)} |{" "}
-                    Parcela: {item.excel.parcelasQtd}X |{" "}
-                    Valor da Parcela: {formatMoney(item.excel.valorParcela)} |{" "}
-                    À Prazo: {formatMoney(item.excel.valorTotal)}
-                    </div>
-                )}
-
-                <br/>
-
-                {item.pdf && (
-                    <div>
-                    <strong>PDF:</strong>{" "}
-                    À vista: {formatMoney(item.pdf.valorAvista)} |{" "}
-                    Parcela: {item.pdf.parcelas}X |{" "}
-                    Valor da Parcela: {formatMoney(item.pdf.valorParcela)} |{" "}
-                    À Prazo: {formatMoney(item.pdf.valorPrazo)}
-                    </div>
-                )}
-                </div>
+      <div className="result-list card">
+        {produtosLista.map((item: Produto, index: number) => (
+          <article key={index} className="product-row">
+            <div className="product-head">
+              <strong>{item.codigo}</strong>
+              <span className={getStatusClass(item.status)}>
+                {formatStatus(item.status)}
+              </span>
             </div>
-            );
-        })}
-        </div>
-    </div>
+
+            <div className="product-values">
+              {item.excel && (
+                <p>
+                  <strong>Excel:</strong> A vista: {formatMoney(item.excel.valorAvista)} |
+                  Parcela: {item.excel.parcelasQtd}x | Valor da parcela:{" "}
+                  {formatMoney(item.excel.valorParcela)} | A prazo:{" "}
+                  {formatMoney(item.excel.valorTotal)}
+                </p>
+              )}
+
+              {item.pdf && (
+                <p>
+                  <strong>PDF:</strong> A vista: {formatMoney(item.pdf.valorAvista)} |
+                  Parcela: {item.pdf.parcelas}x | Valor da parcela:{" "}
+                  {formatMoney(item.pdf.valorParcela)} | A prazo:{" "}
+                  {formatMoney(item.pdf.valorPrazo)}
+                </p>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
-
-/* ================= ESTILOS ================= */
-
-const summaryContainer = {
-  display: "flex",
-  gap: "15px",
-  flexWrap: "wrap" as const,
-  marginTop: "20px",
-};
-
-const tableContainer = {
-  background: "#fff",
-  padding: "20px",
-  borderRadius: "10px",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-  marginTop: "15px",
-};
-
-const rowStyle = {
-  padding: "15px 0",
-  borderBottom: "1px solid #eee",
-};
-
-const rowHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const valuesContainer = {
-  marginTop: "8px",
-  fontSize: "14px",
-  color: "#444",
-};
-
-const statusBadge = {
-  padding: "4px 10px",
-  borderRadius: "20px",
-  color: "#fff",
-  fontSize: "12px",
-  fontWeight: 600,
-};

@@ -3,9 +3,10 @@ import { api } from "../services/api";
 
 interface UploadBoxProps {
   onResult: (data: any) => void;
+  onLoadingChange: (loading: boolean) => void;
 }
 
-export default function UploadBox({ onResult }: UploadBoxProps) {
+export default function UploadBox({ onResult, onLoadingChange }: UploadBoxProps) {
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,14 +23,11 @@ export default function UploadBox({ onResult }: UploadBoxProps) {
 
     try {
       setLoading(true);
+      onLoadingChange(true);
 
-      const response = await api.post(
-        "/api/conferencia/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      const response = await api.post("/api/conferencia/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       onResult(response.data);
     } catch (error) {
@@ -37,37 +35,53 @@ export default function UploadBox({ onResult }: UploadBoxProps) {
       alert("Erro ao processar.");
     } finally {
       setLoading(false);
+      onLoadingChange(false);
     }
   }
 
   return (
-    <div className="card">
-      <h2>📊 Conferência de Arquivos</h2>
-
-      <div className="input-group">
-        <label>Arquivo Excel</label>
-        <input
-          type="file"
-          accept=".xlsx,.xls"
-          onChange={(e) =>
-            setExcelFile(e.target.files ? e.target.files[0] : null)
-          }
-        />
+    <div className="card upload-card">
+      <div className="upload-header">
+        <p className="upload-kicker">Conferência tabloide</p>
+        <h2>Conferência de arquivos</h2>
+        <p className="upload-subtitle">
+          Envie sua planilha e o PDF para comparar dados com rapidez e
+          confiabilidade.
+        </p>
       </div>
 
-      <div className="input-group">
-        <label>Arquivo PDF</label>
-        <input
-          type="file"
-          accept="application/pdf"
-          onChange={(e) =>
-            setPdfFile(e.target.files ? e.target.files[0] : null)
-          }
-        />
+      <div className="upload-grid">
+        <div className="input-group file-field">
+          <label>Arquivo Excel</label>
+          <span className="file-hint">Formatos .xlsx e .xls</span>
+          <input
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={(e) =>
+              setExcelFile(e.target.files ? e.target.files[0] : null)
+            }
+          />
+          <span className="file-name">
+            {excelFile ? excelFile.name : "Nenhum arquivo selecionado"}
+          </span>
+        </div>
+
+        <div className="input-group file-field">
+          <label>Arquivo PDF</label>
+          <span className="file-hint">Documento no formato PDF</span>
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => setPdfFile(e.target.files ? e.target.files[0] : null)}
+          />
+          <span className="file-name">
+            {pdfFile ? pdfFile.name : "Nenhum arquivo selecionado"}
+          </span>
+        </div>
       </div>
 
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? "⏳ Processando..." : "🚀 Iniciar Conferência"}
+      <button className="upload-button" onClick={handleSubmit} disabled={loading}>
+        {loading ? "Processando..." : "Iniciar conferência"}
       </button>
     </div>
   );
