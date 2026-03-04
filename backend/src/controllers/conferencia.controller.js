@@ -6,7 +6,7 @@ function traduzirMensagemErro(err) {
   if (!err) return "Erro interno no servidor.";
 
   if (err.code === "LIMIT_FILE_SIZE" || err.message === "File too large") {
-    return "Arquivo muito grande. Envie arquivos de ate 100MB.";
+    return "Arquivo muito grande. Envie arquivos de ate 30MB.";
   }
 
   if (err.message === "CORS nao configurado no servidor.") {

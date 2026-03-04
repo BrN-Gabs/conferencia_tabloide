@@ -9,7 +9,7 @@ function traduzirErro(err) {
   if (err.code === "LIMIT_FILE_SIZE") {
     return {
       status: 400,
-      message: "Arquivo muito grande. Envie arquivos de ate 100MB."
+      message: "Arquivo muito grande. Envie arquivos de ate 30MB."
     };
   }
 
@@ -23,7 +23,7 @@ function traduzirErro(err) {
   if (err.message === "File too large") {
     return {
       status: 400,
-      message: "Arquivo muito grande. Envie arquivos de ate 100MB."
+      message: "Arquivo muito grande. Envie arquivos de ate 30MB."
     };
   }
 
